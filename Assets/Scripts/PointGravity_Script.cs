@@ -6,9 +6,12 @@ using UnityEngine;
 public class PointGravity_Script : MonoBehaviour{
     
     public bool applyGravity = true;
+    public bool drawDebugRays = true;
     public float gravityStrength = 9.81f;
-    public float gravityFieldRadius = 50;
+    public float gravityFieldRadius = 500;
     public bool freezeRotation = false;
+
+    public AnimationCurve gravityStrengthCurve;
 
     public List<Rigidbody> connectedRigidbodies;
 
@@ -22,7 +25,21 @@ public class PointGravity_Script : MonoBehaviour{
             {
                 Vector3 vectorDelta = (gameObject.transform.position - body.gameObject.transform.position).normalized;
 
-                body.AddForce(vectorDelta * gravityStrength, ForceMode.Acceleration);
+                float vectorDistance = (gameObject.transform.position - body.gameObject.transform.position).magnitude;
+
+                body.AddForce(vectorDelta * ((gravityStrengthCurve.Evaluate(vectorDistance / gravityFieldRadius) + 1) * gravityStrength), ForceMode.Acceleration);
+
+                if (gameObject.GetComponent<BallController_Script>())
+                {
+                    gameObject.GetComponent<BallController_Script>().gravityUpVector = (body.position - transform.position).normalized;
+                }
+
+                if (drawDebugRays)
+                {
+                    Color lineColor = new Color(vectorDistance / gravityFieldRadius, 1 - vectorDistance / gravityFieldRadius, 0);
+
+                    Debug.DrawLine(transform.position, body.transform.position, lineColor);
+                }
             }
         }
 
@@ -36,9 +53,9 @@ public class PointGravity_Script : MonoBehaviour{
 
         foreach (GameObject obj in allObjects)
         {
-            if (Vector3.Distance(gameObject.transform.position, obj.transform.position) <= gravityFieldRadius)
+            if (obj != gameObject && obj.GetComponent<Rigidbody>())
             {
-                if (obj.GetComponent<Rigidbody>() && obj.transform.tag != "Player")
+                if (Vector3.Distance(gameObject.transform.position, obj.transform.position) <= gravityFieldRadius)
                 {
                     newBodyList.Add(obj.GetComponent<Rigidbody>());
                 }

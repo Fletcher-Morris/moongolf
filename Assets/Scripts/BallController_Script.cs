@@ -11,10 +11,14 @@ public class BallController_Script : NetworkBehaviour{
     public float velocityStopPoint = 1f;
     public float minimumShotTime = 1f;
 
+    public float jumpForce = 1f;
+
     float startMouseX;
     public float relativeMouseX;
     float startMouseY;
     public float relativeMouseY;
+
+    public Vector3 gravityUpVector;
 
     public float waitTime;
 
@@ -59,6 +63,8 @@ public class BallController_Script : NetworkBehaviour{
             relativeMouseX = Input.mousePosition.x - startMouseX;
             relativeMouseY = Input.mousePosition.y - startMouseY;
 
+            Camera.main.gameObject.GetComponent<CameraController_Script>().aimingBall = true;
+
             transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, relativeMouseX, transform.localEulerAngles.z);
         }
 
@@ -72,7 +78,15 @@ public class BallController_Script : NetworkBehaviour{
                 CmdTakeShot(new Vector2(relativeMouseX, relativeMouseY));
             }
 
+            Camera.main.gameObject.GetComponent<CameraController_Script>().aimingBall = false;
+
             isBeingDirected = false;
+        }
+
+        if (Input.GetButtonDown("Jump") && isTakingShot)
+        {
+            CmdUpdateBall();
+            CmdJumpBall();
         }
 
         if (isTakingShot && GetComponent<Rigidbody>().velocity.magnitude <= velocityStopPoint && waitTime <= 0)
@@ -80,6 +94,14 @@ public class BallController_Script : NetworkBehaviour{
             isTakingShot = false;
             CmdEndShot();
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!isLocalPlayer)
+            return;
+
+        CmdUpdateBall();
     }
 
     [Command]
@@ -90,11 +112,25 @@ public class BallController_Script : NetworkBehaviour{
     [ClientRpc]
     public void RpcTakeShot(Vector2 shotVector, Vector3 ballPos)
     {
-        gameObject.transform.position = ballPos;
-        gameObject.GetComponent<Rigidbody>().isKinematic = false;
-        gameObject.GetComponent<Collider>().enabled = true;
+        transform.position = ballPos;
+        GetComponent<Rigidbody>().isKinematic = false;
+        GetComponent<Collider>().enabled = true;
         transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, shotVector.x, transform.localEulerAngles.z);
-        gameObject.GetComponent<Rigidbody>().AddRelativeForce(Vector3.forward * shotVector.y);
+        GetComponent<Rigidbody>().AddForce(Camera.main.gameObject.transform.forward * shotVector.y, ForceMode.Impulse);
+    }
+
+    [Command]
+    public void CmdUpdateBall()
+    {
+        RpcUpdateBall(GetComponent<Rigidbody>().velocity, GetComponent<Rigidbody>().angularVelocity, transform.position, transform.rotation);
+    }
+    [ClientRpc]
+    public void RpcUpdateBall(Vector3 velocity, Vector3 angularVelocity, Vector3 position, Quaternion rotation)
+    {
+        GetComponent<Rigidbody>().velocity = velocity;
+        GetComponent<Rigidbody>().angularVelocity = angularVelocity;
+        transform.position = position;
+        transform.rotation = rotation;
     }
 
     [Command]
@@ -105,17 +141,17 @@ public class BallController_Script : NetworkBehaviour{
     [ClientRpc]
     public void RpcStopMovement(Vector3 ballPos)
     {
-        gameObject.transform.position = ballPos;
-        gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        gameObject.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        transform.position = ballPos;
+        GetComponent<Rigidbody>().velocity = Vector3.zero;
+        GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
         isTakingShot = false;
     }
 
     [Command]
     public void CmdEndShot()
     {
-        gameObject.GetComponent<Rigidbody>().isKinematic = true;
-        gameObject.GetComponent<Collider>().enabled = false;
+        GetComponent<Rigidbody>().isKinematic = true;
+        GetComponent<Collider>().enabled = false;
         CmdStopMovement();
     }
 
@@ -127,6 +163,18 @@ public class BallController_Script : NetworkBehaviour{
     [ClientRpc]
     public void RpcSetBallColor(Color ballColor)
     {
-        gameObject.GetComponent<Renderer>().material.color = ballColor;
+        GetComponent<Renderer>().material.color = ballColor;
+    }
+
+    [Command]
+    public void CmdJumpBall()
+    {
+        RpcJumpBall(gravityUpVector * jumpForce);
+    }
+    [ClientRpc]
+    public void RpcJumpBall(Vector3 forceVector)
+    {
+        GetComponent<Rigidbody>().AddForce(forceVector);
+        Debug.Log("Jump (" + forceVector.ToString() + ")");
     }
 }

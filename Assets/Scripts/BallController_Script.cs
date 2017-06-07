@@ -30,14 +30,10 @@ public class BallController_Script : NetworkBehaviour{
 
     private void Update()
     {
-        Debug.Log("Update");
-
         if (!isLocalPlayer)
             return;
 
         waitTime -= Time.deltaTime;
-
-        Debug.Log("Local Update");
 
         if (Input.GetMouseButton(0))
         {
@@ -65,13 +61,13 @@ public class BallController_Script : NetworkBehaviour{
 
             Camera.main.gameObject.GetComponent<CameraController_Script>().aimingBall = true;
 
-            transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, relativeMouseX, transform.localEulerAngles.z);
+            //transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, relativeMouseX, transform.localEulerAngles.z);
         }
 
         if(Input.GetMouseButtonUp(0))
         {
             Debug.Log("Mouse Up");
-            if (isBeingDirected && canBeDirected && new Vector2(relativeMouseX, relativeMouseY).magnitude != 0)
+            if (isBeingDirected && canBeDirected && !isTakingShot && new Vector2(relativeMouseX, relativeMouseY).magnitude != 0)
             {
                 waitTime = minimumShotTime;
                 isTakingShot = true;
@@ -174,7 +170,7 @@ public class BallController_Script : NetworkBehaviour{
     [ClientRpc]
     public void RpcJumpBall(Vector3 forceVector)
     {
-        GetComponent<Rigidbody>().AddForce(forceVector);
+        GetComponent<Rigidbody>().AddForce(forceVector, ForceMode.Impulse);
         Debug.Log("Jump (" + forceVector.ToString() + ")");
     }
 }

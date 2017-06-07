@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PointGravity_Script : MonoBehaviour{
@@ -29,9 +30,9 @@ public class PointGravity_Script : MonoBehaviour{
 
                 body.AddForce(vectorDelta * ((gravityStrengthCurve.Evaluate(vectorDistance / gravityFieldRadius) + 1) * gravityStrength), ForceMode.Acceleration);
 
-                if (gameObject.GetComponent<BallController_Script>())
+                if (body.gameObject.GetComponent<BallController_Script>())
                 {
-                    gameObject.GetComponent<BallController_Script>().gravityUpVector = (body.position - transform.position).normalized;
+                    body.gameObject.GetComponent<BallController_Script>().gravityUpVector = (body.position - transform.position).normalized;
                 }
 
                 if (drawDebugRays)

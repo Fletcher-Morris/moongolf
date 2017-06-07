@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class NetworkedGameManager_Script : NetworkManager
+public class NetworkedGameManager_Script : NetworkLobbyManager
 {
     public List<Player> connectedPlayers;
 

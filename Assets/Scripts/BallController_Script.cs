@@ -10,6 +10,9 @@ public class BallController_Script : NetworkBehaviour{
     public bool isTakingShot = false;
     public float velocityStopPoint = 1f;
     public float minimumShotTime = 1f;
+    public float maxShotForce = 20f;
+    public float shotForceMultiplier = 0.1f;
+    public float myShotForce = 0;
 
     public float jumpForce = 1f;
 
@@ -22,10 +25,15 @@ public class BallController_Script : NetworkBehaviour{
 
     public float waitTime;
 
+    public CameraController_Script myCamController;
+
     private void Start()
     {
         if (!isLocalPlayer)
             return;
+
+        myCamController = GameObject.Find("Camera Rig").GetComponent<CameraController_Script>();
+        myCamController.myBallController = this;
     }
 
     private void Update()
@@ -34,14 +42,6 @@ public class BallController_Script : NetworkBehaviour{
             return;
 
         waitTime -= Time.deltaTime;
-
-        if (Input.GetMouseButton(0))
-        {
-            if (canBeDirected)
-            {
-                isBeingDirected = true;
-            }
-        }
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -56,25 +56,26 @@ public class BallController_Script : NetworkBehaviour{
 
         if (isBeingDirected)
         {
-            relativeMouseX = Input.mousePosition.x - startMouseX;
-            relativeMouseY = Input.mousePosition.y - startMouseY;
-
-            Camera.main.gameObject.GetComponent<CameraController_Script>().aimingBall = true;
-
-            //transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, relativeMouseX, transform.localEulerAngles.z);
+            myShotForce += Input.GetAxis("Mouse Y") * shotForceMultiplier;
+            myShotForce = Mathf.Clamp(myShotForce, 0, maxShotForce);
+        }
+        else
+        {
+            myShotForce = 0;
         }
 
         if(Input.GetMouseButtonUp(0))
         {
-            Debug.Log("Mouse Up");
-            if (isBeingDirected && canBeDirected && !isTakingShot && new Vector2(relativeMouseX, relativeMouseY).magnitude != 0)
+            if (isBeingDirected && canBeDirected && !isTakingShot && myShotForce >= 0)
             {
+                float shotForce = Mathf.Clamp(relativeMouseY, 0, maxShotForce);
+
                 waitTime = minimumShotTime;
                 isTakingShot = true;
-                CmdTakeShot(new Vector2(relativeMouseX, relativeMouseY));
+                CmdUpdateBall();
+                CmdTakeShot(myCamController.axis1.transform.up * myShotForce);
+                myShotForce = 0;
             }
-
-            Camera.main.gameObject.GetComponent<CameraController_Script>().aimingBall = false;
 
             isBeingDirected = false;
         }
@@ -101,32 +102,32 @@ public class BallController_Script : NetworkBehaviour{
     }
 
     [Command]
-    public void CmdTakeShot(Vector2 shotVector)
+    public void CmdTakeShot(Vector3 shotVector)
     {
-        RpcTakeShot(shotVector, gameObject.transform.position);
+        RpcTakeShot(shotVector);
     }
     [ClientRpc]
-    public void RpcTakeShot(Vector2 shotVector, Vector3 ballPos)
+    public void RpcTakeShot(Vector3 shotVector)
     {
-        transform.position = ballPos;
         GetComponent<Rigidbody>().isKinematic = false;
         GetComponent<Collider>().enabled = true;
-        transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, shotVector.x, transform.localEulerAngles.z);
-        GetComponent<Rigidbody>().AddForce(Camera.main.gameObject.transform.forward * shotVector.y, ForceMode.Impulse);
+        GetComponent<Rigidbody>().AddForce(shotVector, ForceMode.Impulse);
     }
 
     [Command]
     public void CmdUpdateBall()
     {
-        RpcUpdateBall(GetComponent<Rigidbody>().velocity, GetComponent<Rigidbody>().angularVelocity, transform.position, transform.rotation);
+        RpcUpdateBall(GetComponent<Rigidbody>().velocity, GetComponent<Rigidbody>().angularVelocity, transform.position, transform.rotation, GetComponent<Collider>().enabled);
     }
     [ClientRpc]
-    public void RpcUpdateBall(Vector3 velocity, Vector3 angularVelocity, Vector3 position, Quaternion rotation)
+    public void RpcUpdateBall(Vector3 velocity, Vector3 angularVelocity, Vector3 position, Quaternion rotation, bool movementState)
     {
         GetComponent<Rigidbody>().velocity = velocity;
         GetComponent<Rigidbody>().angularVelocity = angularVelocity;
         transform.position = position;
         transform.rotation = rotation;
+        GetComponent<Rigidbody>().isKinematic = !movementState;
+        GetComponent<Collider>().enabled = movementState;
     }
 
     [Command]

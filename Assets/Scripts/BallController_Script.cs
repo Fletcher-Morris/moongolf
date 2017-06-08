@@ -33,10 +33,14 @@ public class BallController_Script : NetworkBehaviour{
 
     public CameraController_Script myCamController;
 
+    GameObject powerMeter;
+
     private void Start()
     {
         if (!isLocalPlayer)
             return;
+
+        powerMeter =  GameObject.Find("Power Meter UI");
 
         myCamController = GameObject.Find("Camera Rig").GetComponent<CameraController_Script>();
         myCamController.myBallController = this;
@@ -68,9 +72,15 @@ public class BallController_Script : NetworkBehaviour{
         {
             myShotForce += Input.GetAxis("Mouse Y") * shotForceMultiplier;
             myShotForce = Mathf.Clamp(myShotForce, 0, maxShotForce);
+
+            powerMeter.SetActive(true);
+            powerMeter.transform.GetChild(0).gameObject.GetComponent<Image>().fillAmount = (myShotForce / maxShotForce);
+
+
         }
         else
         {
+            powerMeter.SetActive(false);
             myShotForce = 0;
         }
 

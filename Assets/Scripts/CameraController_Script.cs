@@ -40,7 +40,7 @@ public class CameraController_Script : MonoBehaviour{
             {
                 mouseAxis = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
-                ballGravUp = myBallController.gravityUpVector;
+                ballGravUp = myBallController.gravityUpVectorNormalised;
 
                 transform.position = Vector3.Lerp(transform.position, myBallController.gameObject.transform.position, lerpSpeed);
 
@@ -57,7 +57,10 @@ public class CameraController_Script : MonoBehaviour{
 
                 axis2.transform.localEulerAngles = new Vector3(newY, 0, 0);
 
-                camDistance -= Input.GetAxis("Mouse ScrollWheel") * 5;
+                if (!Input.GetKey(KeyCode.LeftAlt))
+                {
+                    camDistance -= Input.GetAxis("Mouse ScrollWheel") * 5; 
+                }
                 camDistance = Mathf.Clamp(camDistance, minCamDIstance, maxCamDistane);
 
                 mainCam.transform.localPosition = new Vector3(0,0,-camDistance);

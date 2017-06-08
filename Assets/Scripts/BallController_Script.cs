@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class BallController_Script : NetworkBehaviour{
 
@@ -26,6 +27,7 @@ public class BallController_Script : NetworkBehaviour{
     public float relativeMouseY;
 
     public Vector3 gravityUpVector;
+    public Vector3 gravityUpVectorNormalised;
 
     public float waitTime;
 
@@ -43,6 +45,8 @@ public class BallController_Script : NetworkBehaviour{
     private void Update()
     {
         isGrounded = checkGrounded();
+
+        GetComponent<TrailRenderer>().material.color = GetComponent<Renderer>().material.color;
 
         if (!isLocalPlayer)
             return;
@@ -97,11 +101,15 @@ public class BallController_Script : NetworkBehaviour{
             isTakingShot = false;
             CmdEndShot();
         }
+
+        GameObject.Find("Gravity Vector UI Text").GetComponent<Text>().text = "Gravity Vector : " + gravityUpVectorNormalised.ToString();
+        GameObject.Find("Moving UI Text").GetComponent<Text>().text = "Moving : " + isTakingShot.ToString();
+        GameObject.Find("Grounded UI Text").GetComponent<Text>().text = "Grounded : " + isGrounded.ToString();
     }
 
     public bool checkGrounded()
     {
-        if (Physics.Raycast(transform.position, -gravityUpVector, groundCheckDistance, groundLayers))
+        if (Physics.Raycast(transform.position, -gravityUpVectorNormalised, groundCheckDistance, groundLayers))
             return true;
 
         return false;
@@ -180,7 +188,7 @@ public class BallController_Script : NetworkBehaviour{
     [Command]
     public void CmdJumpBall()
     {
-        RpcJumpBall(gravityUpVector * jumpForce);
+        RpcJumpBall(gravityUpVectorNormalised * jumpForce);
     }
     [ClientRpc]
     public void RpcJumpBall(Vector3 forceVector)

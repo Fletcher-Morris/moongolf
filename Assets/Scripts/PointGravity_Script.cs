@@ -32,7 +32,8 @@ public class PointGravity_Script : MonoBehaviour{
 
                 if (body.gameObject.GetComponent<BallController_Script>())
                 {
-                    body.gameObject.GetComponent<BallController_Script>().gravityUpVector = (body.position - transform.position).normalized;
+                    body.gameObject.GetComponent<BallController_Script>().gravityUpVectorNormalised = (body.position - transform.position);
+                    body.gameObject.GetComponent<BallController_Script>().gravityUpVectorNormalised = (body.position - transform.position).normalized;
                 }
 
                 if (drawDebugRays)

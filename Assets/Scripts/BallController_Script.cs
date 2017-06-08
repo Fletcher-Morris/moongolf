@@ -16,6 +16,10 @@ public class BallController_Script : NetworkBehaviour{
 
     public float jumpForce = 1f;
 
+    public LayerMask groundLayers;
+    float groundCheckDistance = 0.15f;
+    public bool isGrounded;
+
     float startMouseX;
     public float relativeMouseX;
     float startMouseY;
@@ -38,6 +42,8 @@ public class BallController_Script : NetworkBehaviour{
 
     private void Update()
     {
+        isGrounded = checkGrounded();
+
         if (!isLocalPlayer)
             return;
 
@@ -80,17 +86,25 @@ public class BallController_Script : NetworkBehaviour{
             isBeingDirected = false;
         }
 
-        if (Input.GetButtonDown("Jump") && isTakingShot)
+        if (Input.GetButtonDown("Jump") && isTakingShot && checkGrounded())
         {
             CmdUpdateBall();
             CmdJumpBall();
         }
 
-        if (isTakingShot && GetComponent<Rigidbody>().velocity.magnitude <= velocityStopPoint && waitTime <= 0)
+        if (isTakingShot && GetComponent<Rigidbody>().velocity.magnitude <= velocityStopPoint && waitTime <= 0 && checkGrounded())
         {
             isTakingShot = false;
             CmdEndShot();
         }
+    }
+
+    public bool checkGrounded()
+    {
+        if (Physics.Raycast(transform.position, -gravityUpVector, groundCheckDistance, groundLayers))
+            return true;
+
+        return false;
     }
 
     private void OnCollisionEnter(Collision collision)

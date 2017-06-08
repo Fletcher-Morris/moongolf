@@ -14,6 +14,10 @@ public class CameraController_Script : MonoBehaviour{
     public GameObject axis1;
     public GameObject axis2;
 
+    public float camDistance = 10f;
+    public float minCamDIstance = 1f;
+    public float maxCamDistane = 20f;
+
     public BallController_Script myBallController;
 
     public float lerpSpeed = 1f;
@@ -51,7 +55,12 @@ public class CameraController_Script : MonoBehaviour{
                 newY -= mouseAxis.y * aimingSensitivity;
                 newY = Mathf.Clamp(newY, -89, -1);
 
-                axis2.transform.localEulerAngles = new Vector3(newY, 0, 0);  
+                axis2.transform.localEulerAngles = new Vector3(newY, 0, 0);
+
+                camDistance -= Input.GetAxis("Mouse ScrollWheel") * 5;
+                camDistance = Mathf.Clamp(camDistance, minCamDIstance, maxCamDistane);
+
+                mainCam.transform.localPosition = new Vector3(0,0,-camDistance);
             }
         }
 

@@ -15,12 +15,15 @@ public class CameraController_Script : MonoBehaviour{
     public GameObject axis2;
 
     public float camDistance = 10f;
-    public float minCamDIstance = 1f;
+    public float minCamDistance = 1f;
     public float maxCamDistane = 20f;
 
     public BallController_Script myBallController;
 
-    public float lerpSpeed = 1f;
+    public bool isGrounded = false;
+    public float positionLerpSpeedGrounded = 0.2f;
+    public float positionLerpSpeedNotGrounded = 0.2f;
+    public float rotationLerpSpeed = 1f;
 
     public Vector3 ballGravUp;
 
@@ -31,7 +34,7 @@ public class CameraController_Script : MonoBehaviour{
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
 
         if (myBallController)
@@ -42,10 +45,17 @@ public class CameraController_Script : MonoBehaviour{
 
                 ballGravUp = myBallController.gravityUpVectorNormalised;
 
-                transform.position = Vector3.Lerp(transform.position, myBallController.gameObject.transform.position, lerpSpeed);
+                if (isGrounded)
+                {
+                    transform.position = Vector3.Lerp(transform.position, myBallController.gameObject.transform.position, positionLerpSpeedGrounded);
+                }
+                else
+                {
+                    transform.position = Vector3.Lerp(transform.position, myBallController.gameObject.transform.position, positionLerpSpeedNotGrounded);
+                }
 
                 Vector3 targetDir = (myBallController.gameObject.transform.position - ballGravUp) - transform.position;
-                float step = lerpSpeed * 10 * Time.deltaTime;
+                float step = rotationLerpSpeed * 10 * Time.deltaTime;
                 Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, step, 0.0F);
                 Debug.DrawRay(transform.position, newDir, Color.red);
                 transform.rotation = Quaternion.LookRotation(newDir + new Vector3(0, 0, 0));
@@ -61,7 +71,7 @@ public class CameraController_Script : MonoBehaviour{
                 {
                     camDistance -= Input.GetAxis("Mouse ScrollWheel") * 5; 
                 }
-                camDistance = Mathf.Clamp(camDistance, minCamDIstance, maxCamDistane);
+                camDistance = Mathf.Clamp(camDistance, minCamDistance, maxCamDistane);
 
                 mainCam.transform.localPosition = new Vector3(0,0,-camDistance);
             }

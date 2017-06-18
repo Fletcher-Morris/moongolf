@@ -34,6 +34,7 @@ public class BallController_Script : NetworkBehaviour{
     public CameraController_Script myCamController;
 
     GameObject powerMeter;
+    public Color myBallColour;
 
     private void Start()
     {
@@ -49,8 +50,8 @@ public class BallController_Script : NetworkBehaviour{
     private void Update()
     {
         isGrounded = checkGrounded();
-
-        GetComponent<TrailRenderer>().material.color = GetComponent<Renderer>().material.color;
+        GetComponent<Renderer>().material.color = myBallColour;
+        GetComponent<TrailRenderer>().material.color = myBallColour;
 
         if (!isLocalPlayer)
             return;
@@ -109,12 +110,22 @@ public class BallController_Script : NetworkBehaviour{
         if (isTakingShot && GetComponent<Rigidbody>().velocity.magnitude <= velocityStopPoint && waitTime <= 0 && checkGrounded())
         {
             isTakingShot = false;
+            CmdStopMovement();
             CmdEndShot();
         }
+
+        myCamController.isGrounded = checkGrounded();
 
         GameObject.Find("Gravity Vector UI Text").GetComponent<Text>().text = "Gravity Vector : " + gravityUpVectorNormalised.ToString();
         GameObject.Find("Moving UI Text").GetComponent<Text>().text = "Moving : " + isTakingShot.ToString();
         GameObject.Find("Grounded UI Text").GetComponent<Text>().text = "Grounded : " + isGrounded.ToString();
+
+        if (GameObject.Find("Color Selector Panel"))
+        {
+            myBallColour = GameObject.Find("Color Selector Panel").GetComponent<ColourSelector_Script>().resultColor;
+
+            CmdSetBallColor(myBallColour);
+        }
     }
 
     public bool checkGrounded()
@@ -179,9 +190,13 @@ public class BallController_Script : NetworkBehaviour{
     [Command]
     public void CmdEndShot()
     {
+        RpcEndShot();
+    }
+    [ClientRpc]
+    public void RpcEndShot()
+    {
         GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<Collider>().enabled = false;
-        CmdStopMovement();
     }
 
     [Command]
@@ -192,7 +207,7 @@ public class BallController_Script : NetworkBehaviour{
     [ClientRpc]
     public void RpcSetBallColor(Color ballColor)
     {
-        GetComponent<Renderer>().material.color = ballColor;
+        myBallColour = ballColor; 
     }
 
     [Command]

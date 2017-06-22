@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class PrefsManager_Script : MonoBehaviour
 {
+    [SerializeField]
     public Preferences prefs;
 
     private void Start()

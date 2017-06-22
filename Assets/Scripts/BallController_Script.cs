@@ -21,9 +21,7 @@ public class BallController_Script : NetworkBehaviour{
     float groundCheckDistance = 0.15f;
     public bool isGrounded;
 
-    float startMouseX;
     public float relativeMouseX;
-    float startMouseY;
     public float relativeMouseY;
 
     public Vector3 gravityUpVector;
@@ -64,9 +62,6 @@ public class BallController_Script : NetworkBehaviour{
             {
                 isBeingDirected = true;
             }
-
-            startMouseX = Input.mousePosition.x;
-            startMouseY = Input.mousePosition.y;
         }
 
         if (isBeingDirected)

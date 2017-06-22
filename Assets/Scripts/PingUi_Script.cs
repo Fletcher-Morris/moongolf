@@ -16,6 +16,12 @@ public class PingUi_Script : NetworkBehaviour{
 
     private void Update()
     {
+        if (!isLocalPlayer)
+            return;
+
+        if (!isClient)
+            return;
+
         if (nm != null)
         {
             avPing = nm.client.GetRTT();

@@ -39,12 +39,12 @@ public class Preferences
 
         try
         {
-            string jsonString = File.ReadAllText(Application.dataPath + "/Data");
+            string jsonString = File.ReadAllText(Application.dataPath + "/Preferences.json");
             newPrefs = JsonUtility.FromJson<Preferences>(jsonString);
 
-            this.volume = newPrefs.volume;
-            this.resolution = newPrefs.resolution;
-            this.quality = newPrefs.quality;
+            volume = newPrefs.volume;
+            resolution = newPrefs.resolution;
+            quality = newPrefs.quality;
         }
         catch
         {

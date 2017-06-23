@@ -16,7 +16,7 @@ public class Player
     public Player()
     {
         playerId = "";
-        playerName = "New Player";
+        playerName = "";
         steamId = "";
         ballColor = Color.blue;
 

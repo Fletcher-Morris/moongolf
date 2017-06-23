@@ -16,6 +16,8 @@ public class PrefsManager_Script : MonoBehaviour
         prefs.resolution = Screen.currentResolution;
 
         UpdateQuality(prefs.quality);
+
+        SetUIItems();
     }
 
     public void UpdateQuality(int index)
@@ -28,5 +30,11 @@ public class PrefsManager_Script : MonoBehaviour
     {
         UpdateQuality(Mathf.RoundToInt(mySlider.value));
         mySlider.gameObject.transform.parent.gameObject.GetComponent<Text>().text = "Quality : " + Mathf.RoundToInt(mySlider.value).ToString();
+    }
+
+    public void SetUIItems()
+    {
+        GameObject.Find("Volume Slider").transform.GetChild(0).gameObject.GetComponent<Slider>().value = prefs.volume;
+        GameObject.Find("Quality Slider").transform.GetChild(0).gameObject.GetComponent<Slider>().value = prefs.quality;
     }
 }

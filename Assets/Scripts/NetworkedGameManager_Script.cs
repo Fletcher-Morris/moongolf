@@ -12,8 +12,21 @@ public class NetworkedGameManager_Script : NetworkLobbyManager
     public int roundTimer = 120;
     public string ballShape = "Ball";
 
-    public void StartGame()
+    public void SetPort()
+    {
+        networkPort = 7777;
+    }
+
+    public void SetIpAddress()
     {
 
+    }
+
+    public void SetIpAddress(string address)
+    {
+        if (address == "")
+            address = "localhost";
+
+        networkAddress = address;
     }
 }

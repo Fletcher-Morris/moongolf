@@ -39,17 +39,6 @@ public class MainMenuController_Script : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.J)){
-            if (movingToMainMenu)
-            {
-                GoToPrefsMenu();
-            }
-            else if (movingToPrefsMenu)
-            {
-                GoToMainMenu();
-            }
-        }
-
         if (movingToMainMenu)
         {
             transform.position = Vector3.MoveTowards(transform.position, mainMenuCamPos, moveSpeed * Time.deltaTime);

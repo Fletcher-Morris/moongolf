@@ -7,7 +7,9 @@ using Steamworks;
 
 public class LobbyPlayer_Script : NetworkLobbyPlayer{
 
+    [SyncVar]
     public string playerName;
+    [SyncVar]
     public Color ballColour;
 
     public GameObject lobbyPlayerUiPrefab;
@@ -23,30 +25,23 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
         myLobbyPlayerUi = GameObject.Instantiate(lobbyPlayerUiPrefab, GameObject.Find("Connected Players Canvas").transform.GetChild(0));
         myLobbyPlayerUi.GetComponent<LobbyPlayerUiScript>().lobbyPlayerObject = gameObject;
 
+        ballColour = Random.ColorHSV(0, 1, 1, 1, 1, 1, 1, 1);
+
         if (!isLocalPlayer)
             return;
 
-        ballColour = Random.ColorHSV();
-
         myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = playerName;
-
-        CmdSendName(playerName);
     }
 
     [Command]
-    public void CmdSendName(string _name)
+    public void CmdSendColour(Color _col)
     {
-        RpcSendName(_name);
+        RpcSendColour(_col);
     }
     [ClientRpc]
-    public void RpcSendName(string _name)
+    public void RpcSendColour(Color _col)
     {
-        playerName = _name;
-    }
-
-    private void OnPlayerConnected()
-    {
-        CmdSendName(playerName);
+        this.ballColour = _col;
     }
 
     private void Update()
@@ -60,7 +55,16 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
             else
             {
                 myLobbyPlayerUi.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Text>().text = "NOT READY";
-            } 
+            }
+
+            if (playerName == "")
+                myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = "...";
+            else
+            {
+                myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = playerName;
+            }
+
+            myLobbyPlayerUi.transform.GetChild(1).gameObject.GetComponent<Image>().color = ballColour;
         }
 
         if (!isLocalPlayer)
@@ -68,14 +72,7 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
 
         if (GameObject.Find("Color Selector Panel"))
         {
-            ballColour = GameObject.Find("Color Selector Panel").GetComponent<ColourSelector_Script>().resultColor;
-        }
-
-        if(playerName == "")
-            myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = "UNKNOWN PLAYER";
-        else
-        {
-            myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = playerName;
+            //ballColour = GameObject.Find("Color Selector Panel").GetComponent<ColourSelector_Script>().resultColor;
         }
 
 
@@ -83,5 +80,7 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
         {
             myLobbyPlayerUi.transform.GetChild(0).GetComponent<Toggle>().interactable = true;
         }
+
+        CmdSendColour(ballColour);
     }
 }

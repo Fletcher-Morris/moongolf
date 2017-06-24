@@ -5,5 +5,11 @@ using Steamworks;
 
 public class StartupMethods_Script : MonoBehaviour
 {
-
+    private void Start()
+    {
+        if (SteamManager.Initialized)
+        {
+            string steamName = SteamFriends.GetPersonaName();
+        }
+    }
 }

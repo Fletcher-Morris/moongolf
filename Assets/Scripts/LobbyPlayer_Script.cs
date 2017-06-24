@@ -15,18 +15,38 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
 
     public override void OnClientEnterLobby()
     {
+        if (SteamManager.Initialized)
+        {
+            playerName = SteamFriends.GetPersonaName();
+        }
+
         myLobbyPlayerUi = GameObject.Instantiate(lobbyPlayerUiPrefab, GameObject.Find("Connected Players Canvas").transform.GetChild(0));
         myLobbyPlayerUi.GetComponent<LobbyPlayerUiScript>().lobbyPlayerObject = gameObject;
 
         if (!isLocalPlayer)
             return;
 
-        if (SteamManager.Initialized)
-        {
-            playerName = SteamFriends.GetPersonaName(); 
-        }
-
         ballColour = Random.ColorHSV();
+
+        myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = playerName;
+
+        CmdSendName(playerName);
+    }
+
+    [Command]
+    public void CmdSendName(string _name)
+    {
+        RpcSendName(_name);
+    }
+    [ClientRpc]
+    public void RpcSendName(string _name)
+    {
+        playerName = _name;
+    }
+
+    private void OnPlayerConnected()
+    {
+        CmdSendName(playerName);
     }
 
     private void Update()

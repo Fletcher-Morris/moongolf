@@ -5,8 +5,5 @@ using Steamworks;
 
 public class StartupMethods_Script : MonoBehaviour
 {
-    private void Awake()
-    {
-        SteamAPI.Init();
-    }
+
 }

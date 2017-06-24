@@ -84,8 +84,6 @@ public class BallController_Script : NetworkBehaviour{
         {
             if (isBeingDirected && canBeDirected && !isTakingShot && myShotForce >= 0)
             {
-                float shotForce = Mathf.Clamp(relativeMouseY, 0, maxShotForce);
-
                 waitTime = minimumShotTime;
                 isTakingShot = true;
                 CmdUpdateBall();

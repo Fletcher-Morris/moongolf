@@ -31,5 +31,9 @@ public class PingUi_Script : NetworkBehaviour{
                 GetComponent<Text>().text = "Ping: " + avPing + "ms";
             } 
         }
+        else
+        {
+            nm = GameObject.Find("NM").GetComponent<NetworkedGameManager_Script>();
+        }
     }
 }

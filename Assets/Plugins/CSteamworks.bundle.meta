@@ -1,7 +1,7 @@
 fileFormatVersion: 2
-guid: 0354b06578367d0449725b00a786b684
+guid: 05fd7199690014e44bb3f2d920f309fb
 folderAsset: yes
-timeCreated: 1496771306
+timeCreated: 1498400678
 licenseType: Free
 PluginImporter:
   serializedVersion: 2
@@ -22,7 +22,9 @@ PluginImporter:
       second:
         enabled: 1
         settings:
+          CPU: AnyCPU
           DefaultValueInitialized: true
+          OS: OSX
     data:
       first:
         Standalone: OSXIntel

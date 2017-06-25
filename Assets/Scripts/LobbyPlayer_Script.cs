@@ -12,25 +12,33 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
     [SyncVar]
     public Color ballColour;
 
+    public bool isLocal;
+
     public GameObject lobbyPlayerUiPrefab;
     public GameObject myLobbyPlayerUi;
 
-    public override void OnClientEnterLobby()
+    public override void OnStartLocalPlayer()
     {
+        isLocal = isLocalPlayer;
+
         if (SteamManager.Initialized)
         {
             playerName = SteamFriends.GetPersonaName();
         }
 
+        ballColour = Random.ColorHSV(0, 1, 1, 1, 1, 1, 1, 1);
+    }
+
+    public override void OnClientEnterLobby()
+    {
         myLobbyPlayerUi = GameObject.Instantiate(lobbyPlayerUiPrefab, GameObject.Find("Connected Players Canvas").transform.GetChild(0));
         myLobbyPlayerUi.GetComponent<LobbyPlayerUiScript>().lobbyPlayerObject = gameObject;
-
-        ballColour = Random.ColorHSV(0, 1, 1, 1, 1, 1, 1, 1);
-
         if (!isLocalPlayer)
             return;
 
-        myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = playerName;
+        CmdSendColour(ballColour);
+        CmdSendName(playerName);
+        Debug.Log("Send Name : " + playerName);
     }
 
     [Command]
@@ -44,43 +52,53 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
         this.ballColour = _col;
     }
 
+    [Command]
+    public void CmdSendName(string _name)
+    {
+        RpcSendName(_name);
+    }
+    [ClientRpc]
+    public void RpcSendName(string _name)
+    {
+        this.playerName = _name;
+    }
+
     private void Update()
     {
+        isLocal = isLocalPlayer;
+
         if (myLobbyPlayerUi)
         {
             if (readyToBegin)
             {
-                myLobbyPlayerUi.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Text>().text = "READY";
+                myLobbyPlayerUi.GetComponent<LobbyPlayerUiScript>().readyButtonObject.transform.GetChild(1).gameObject.GetComponent<Text>().text = "READY";
             }
             else
             {
-                myLobbyPlayerUi.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Text>().text = "NOT READY";
+                myLobbyPlayerUi.GetComponent<LobbyPlayerUiScript>().readyButtonObject.transform.GetChild(1).gameObject.GetComponent<Text>().text = "NOT READY";
             }
 
             if (playerName == "")
-                myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = "...";
+                myLobbyPlayerUi.transform.GetChild(1).GetChild(0).gameObject.GetComponent<Text>().text = ":(";
             else
             {
-                myLobbyPlayerUi.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = playerName;
+                myLobbyPlayerUi.transform.GetChild(1).GetChild(0).gameObject.GetComponent<Text>().text = playerName;
             }
 
-            myLobbyPlayerUi.transform.GetChild(1).gameObject.GetComponent<Image>().color = ballColour;
+            myLobbyPlayerUi.transform.GetChild(2).gameObject.GetComponent<Image>().color = ballColour;
         }
 
         if (!isLocalPlayer)
             return;
 
-        if (GameObject.Find("Color Selector Panel"))
-        {
-            //ballColour = GameObject.Find("Color Selector Panel").GetComponent<ColourSelector_Script>().resultColor;
-        }
-
-
         if (myLobbyPlayerUi)
         {
-            myLobbyPlayerUi.transform.GetChild(0).GetComponent<Toggle>().interactable = true;
-        }
+            myLobbyPlayerUi.transform.GetChild(1).GetComponent<Toggle>().interactable = true;
 
-        CmdSendColour(ballColour);
+            if (myLobbyPlayerUi.GetComponent<LobbyPlayerUiScript>().colourSelectorOpen == false)
+            {
+                CmdSendColour(ballColour);
+            }
+        }
     }
 }

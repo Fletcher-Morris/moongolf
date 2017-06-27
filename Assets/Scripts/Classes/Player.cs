@@ -5,22 +5,21 @@ using UnityEngine;
 [System.Serializable]
 public class Player
 {
-    public string playerId;
     public string playerName;
-    public string steamId;
+    public int playerId;
     public Color ballColor;
-
-    public int remainingShots;
-    public int score;
 
     public Player()
     {
-        playerId = "";
         playerName = "";
-        steamId = "";
+        playerId = 0;
         ballColor = Color.blue;
+    }
 
-        remainingShots = 10;
-        score = 0;
+    public Player(string _name, int _id, Color _ballColour)
+    {
+        playerName = _name;
+        playerId = _id;
+        ballColor = _ballColour;
     }
 }

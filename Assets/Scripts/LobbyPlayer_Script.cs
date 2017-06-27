@@ -65,8 +65,6 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
 
     private void Update()
     {
-        isLocal = isLocalPlayer;
-
         if (myLobbyPlayerUi)
         {
             if (readyToBegin)
@@ -86,6 +84,18 @@ public class LobbyPlayer_Script : NetworkLobbyPlayer{
             }
 
             myLobbyPlayerUi.transform.GetChild(2).gameObject.GetComponent<Image>().color = ballColour;
+        }
+
+        if (isLocal)
+        {
+            foreach (BallController_Script _ball in GameObject.FindObjectsOfType<BallController_Script>())
+            {
+                if (_ball.isLocalPlayer)
+                {
+                    _ball.myBallColour = ballColour;
+                    _ball.CmdSetBallColor(ballColour);
+                }
+            } 
         }
 
         if (!isLocalPlayer)

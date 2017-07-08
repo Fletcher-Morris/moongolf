@@ -120,6 +120,15 @@ public class BallController_Script : NetworkBehaviour{
 
             CmdSetBallColor(myBallColour);
         }
+
+        if (isGrounded)
+        {
+            GetComponent<Rigidbody>().angularDrag = 0.2f;
+        }
+        else
+        {
+            GetComponent<Rigidbody>().angularDrag = 0f;
+        }
     }
 
     public bool checkGrounded()

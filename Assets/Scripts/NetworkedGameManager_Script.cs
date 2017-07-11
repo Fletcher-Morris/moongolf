@@ -6,8 +6,8 @@ using UnityEngine.Networking;
 public class NetworkedGameManager_Script : NetworkLobbyManager
 {
     public List<Player> connectedPlayers;
-    public List<int> holePar;
-    public List<RoundStats> gameStats;
+
+    public int currentRound = 0;
 
     [Header("Game Settings")]
     public bool allowCollisions = true;
@@ -37,7 +37,7 @@ public class NetworkedGameManager_Script : NetworkLobbyManager
     {
         connectedPlayers.Clear();
 
-        for(int i = 0; i < lobbySlots.Length; i++)
+        for (int i = 0; i < lobbySlots.Length; i++)
         {
             if (lobbySlots[i] != null)
             {

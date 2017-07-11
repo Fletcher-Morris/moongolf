@@ -23,7 +23,7 @@ public class SteamScript_Script : MonoBehaviour
         if (SteamManager.Initialized)
         {
             steamName = SteamFriends.GetPersonaName();
-            Debug.Log(steamName);
+            Debug.Log("Connected To Steam Account As " + steamName);
         }
     }
 
